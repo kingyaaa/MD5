@@ -52,14 +52,15 @@ module exp12(
 //=======================================================
 wire [7:0] outdata;
 wire en;
-
+wire [63:0] total_len;
+wire [8:0] strlen;
 //=======================================================
 //  Structural coding
 //=======================================================
 
 kbd mykbd(
 	.clk(CLOCK_50),
-	.clrn(~SW[0]),
+	.clrn(1'b1),
 	.ps2_clk(PS2_CLK),
 	.ps2_data(PS2_DAT),
 	.outdata(outdata),
@@ -68,10 +69,23 @@ kbd mykbd(
 
 //字符串直到回车为止
 asc2str a2s(
+	.str_length(strlen),
+	.total_length(total_len),
 	.clk(CLOCK_50),
 	.vga_clk(VGA_CLK),
 	.en(en),
-	.reset(SW[0]),
+	.reset(1'b0),
 	.ascii(outdata)
 );
+
+seven sv1(
+	.in_q({1'b0,strlen[3:0]}),
+	.h(HEX0)
+);
+
+seven sv2(
+	.in_q({1'b0,strlen[7:4]}),
+	.h(HEX1)
+);
+
 endmodule
