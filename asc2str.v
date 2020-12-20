@@ -6,12 +6,12 @@ module asc2str(
 	input [7:0]ascii,
 	//output reg [7:0]oDATA,
 	output reg [31:0]oDATA,
+	output reg Nwren,
 	output reg [8:0] str_length,
 	output reg calculate,
 	output [7:0] count_md,
 	output reg Last
 );
-reg  Nwren; 
 reg [63:0] total_length;	//总长度
 //reg [8:0] str_length;
 reg [5:0]number;
@@ -106,17 +106,17 @@ always @ (posedge kbdclk) begin
 	//	wren <= 0;
    
 	if(write)begin
-		Finish=0;
-		total_length = total_length + 1;
-		str_length = str_length + 1;
-		string[(str_length*8-1)-:8] = ascii;
-		if(str_length == 64)
+		Finish<=0;
+		total_length <= total_length + 1;
+		str_length <= str_length + 1;
+		string[(str_length*8+7)-:8] <= ascii;
+		if(str_length == 63)
 		begin
-			str_length = 0;//重新归0
-			calculate = 1;
+			str_length <= 0;//重新归0
+			calculate <= 1;
 		end
 		else
-			calculate = 0;
+			calculate <= 0;
 	end
 	
 	if(write)begin							//写入字符
@@ -129,107 +129,90 @@ always @ (posedge kbdclk) begin
 		enter<=0;
 		if((str_length<<3)<9'd448)
 		begin
-			string[str_length*8+7]= 1'b1;	//写入0000 0001
-			string[511:448]=total_length[63:0];//64Bit
-			Finish=1;
+			string[str_length*8+7]<= 1'b1;	//写入0000 0001
+			string[511:448]<=total_length[63:0];//64Bit
+			Finish<=1;
 		end
 		else if((str_length<<3)==9'd448)
 		begin
-			string[511:448]=total_length[63:0];
-			Finish=1;
+			string[511:448]<=total_length[63:0];
+			Finish<=1;
 		end
 		else 
 		begin
-			other=1;
-			string[str_length*8+7]= 1'b1;
+			other<=1;
+			string[str_length*8+7]<= 1'b1;
 		end
-		calculate = 1;
-		str_length =0;
+		calculate <= 1;
+		str_length <=0;
    end
 	else if(other==1)//再补全一组
 	begin
-		string[447:0]={448{1'b0}};
-		string[511:448]=total_length[63:0];
-		calculate = 1;
-		other=0;
-		Finish=1;
-		str_length=0;
+		string[447:0]<={448{1'b0}};
+		string[511:448]<=total_length[63:0];
+		calculate <= 1;
+		other<=0;
+		Finish<=1;
+		str_length<=0;
 	end
 	
 	if(Finish==1 && other==0 && complete != crem)
 	begin
-		Last=1;
+		Last<=1;
 	end
 	
 	if(complete!=crem)//完成一组的计算
 	begin
-		calculate =0;
+		calculate <=0;
 	//	string[511:0]={512{1'b0}};
 		A=A+a;
 		B=B+b;
 		C=C+c;
 		D=D+d;
-		crem=~crem;
+		crem<=~crem;
 	end
 	
-	RES[127:0]={A[31:0],B[31:0],C[31:0],D[31:0]};
+	RES[127:0]<={A[31:0],B[31:0],C[31:0],D[31:0]};
 
-	/*if(Last)
+	/*
+	if(Last)
 	begin
-		Nwren=1;
+		Nwren<=1;
 		if(number<=32)
 		begin
-		
 		case(RES[(number*4-1)-:4])
 		
-		4'h0:oDATA=8'h30;
-		4'h1:oDATA=8'h31;
-		4'h2:oDATA=8'h32;
-		4'h3:oDATA=8'h33;
-		4'h4:oDATA=8'h34;
-		4'h5:oDATA=8'h35;
-		4'h6:oDATA=8'h36;
-		4'h7:oDATA=8'h37;
-		4'h8:oDATA=8'h38;
-		4'h9:oDATA=8'h39;
-		4'ha:oDATA=8'h61;
-		4'hb:oDATA=8'h62;
-		4'hc:oDATA=8'h63;
-		4'hd:oDATA=8'h64;
-		4'he:oDATA=8'h65;
-		4'hf:oDATA=8'h66;
-		/*
-		4'h0:oDATA=8'h31;
-		4'h1:oDATA=8'h31;
-		4'h2:oDATA=8'h31;
-		4'h3:oDATA=8'h31;
-		4'h4:oDATA=8'h31;
-		4'h5:oDATA=8'h31;
-		4'h6:oDATA=8'h31;
-		4'h7:oDATA=8'h31;
-		4'h8:oDATA=8'h31;
-		4'h9:oDATA=8'h31;
-		4'ha:oDATA=8'h31;
-		4'hb:oDATA=8'h31;
-		4'hc:oDATA=8'h31;
-		4'hd:oDATA=8'h31;
-		4'he:oDATA=8'h25;
-		4'hf:oDATA=8'h66;
-		
+		4'h0:oDATA<=8'h30;
+		4'h1:oDATA<=8'h31;
+		4'h2:oDATA<=8'h32;
+		4'h3:oDATA<=8'h33;
+		4'h4:oDATA<=8'h34;
+		4'h5:oDATA<=8'h35;
+		4'h6:oDATA<=8'h36;
+		4'h7:oDATA<=8'h37;
+		4'h8:oDATA<=8'h38;
+		4'h9:oDATA<=8'h39;
+		4'ha:oDATA<=8'h61;
+		4'hb:oDATA<=8'h62;
+		4'hc:oDATA<=8'h63;
+		4'hd:oDATA<=8'h64;
+		4'he:oDATA<=8'h65;
+		4'hf:oDATA<=8'h66;
 		endcase
-		number=number+1;
+		number<=number+1;
 		end
 		else
 		begin
-			number=1;
+			number<=1;
 			//oDATA=8'h0d;
-			Last=0;
+			Last<=0;
 		end
 	end
 	else
 	begin
-		Nwren=0;
-	end*/
+		Nwren<=0;
+	end
+	*/
 	oDATA=D;
 end
 endmodule
