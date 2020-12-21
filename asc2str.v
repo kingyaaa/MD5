@@ -4,8 +4,8 @@ module asc2str(
 	input en,
 	input reset,
 	input [7:0]ascii,
-	//output reg [7:0]oDATA,
 	output reg [7:0]oDATA,
+	//output reg [31:0]oDATA,
 	output reg Nwren,
 	output reg [8:0] str_length,
 	output reg calculate,
@@ -41,6 +41,7 @@ reg Finish;
 reg crem;
 initial
 begin
+	total_length = 0;
 	str_length = 0;
 	other = 0;
 	Finish=0;
@@ -56,6 +57,7 @@ begin
 	C = 32'h89ABCDEF;
 	D = 32'h01234567;
 	*/
+	oDATA = 0;
 	number=1;
 	crem=0;
 	calculate=0;
@@ -127,7 +129,7 @@ always @ (posedge kbdclk) begin
 	else if(enter)begin					//实现回车键
 		write<=0;
 		enter<=0;
-		if((str_length<<3)<9'd448)
+		if(((str_length+1)<<3)<9'd448)
 		begin
 			string[str_length*8+7]<= 1'b1;	//写入0000 0001
 			string[511:448]<=total_length[63:0];//64Bit

@@ -42,9 +42,7 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		count = 0;
 		complete=0;
 	end
-	
-	always @ (posedge clk)
-	if(en == 1)
+	always @ (posedge en)
 	begin	
 	
 		a = A;
@@ -61,11 +59,11 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		//a = b + temp;
 		//a = b + ((a+((b&c)|((~b)&d))+string[31:0]+32'h7da6_4a87)<< 7  |  (a+((b&c)|((~b)&d))+string[31:0]+32'h7da6_4a87)>>(32- 7) ); 
 		//a = b + ((a+((b&c)|((~b)&d))+string[ 0]+32'hd76a_a478)<< 7  |  (a+((b&c)|((~b)&d))+mes_part[ 0]+32'hd76a_a478)>>(32- 7) );
-		/*
+		
 		temp = d + `F(a,b,c) + string[63:32]  + 32'he8c7b756;//e8c7b756
 		temp = {temp[19:0],temp[31:20]};
 		d = a + temp;
-		/*
+		
 		temp = c + `F(d,a,b) + string[95:64]  + 32'hdb702024;
 		temp = {temp[14:0],temp[31:15]};
 		c = d + temp;
@@ -121,78 +119,78 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		temp = b + `F(c,d,a) + string[511:480]+ 32'h2108b449; 
 		temp = {temp[9:0],temp[31:10]};
 		b = c + temp;
-		*/
+		
 		//GG
 		
-		temp = a + `G(b,c,d) + string[63:32] +  32'h62251ef6; 
+		temp = a + `G(b,c,d) + string[63:32] +  	32'hf61e2562; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `G(a,b,c) + string[223:192]+  32'h40b340c0; 
+		temp = d + `G(a,b,c) + string[223:192]+	32'hc040b340; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `G(d,a,b) + string[479:448]+  32'h515a5e26; 
+		temp = c + `G(d,a,b) + string[479:448]+  	32'h265e5a51; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `G(c,d,a) + string[31:0]+ 32'haac7b6e9; 
+		temp = b + `G(c,d,a) + string[31:0]+ 		32'he9b6c7aa; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//
-		temp = a + `G(b,c,d) + string[192:160]+ 32'h5d102fd6; 
+		temp = a + `G(b,c,d) + string[192:160]+ 	32'hd62f105d; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `G(a,b,c) + string[351:320]+ 32'h53144402; 
+		temp = d + `G(a,b,c) + string[351:320]+ 	32'h2441453; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `G(d,a,b) + string[511:480]+ 32'h81e6a1d8; 
+		temp = c + `G(d,a,b) + string[511:480]+ 	32'hd8a1e681; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `G(c,d,a) + string[159:128]+ 32'hc8fbd3e7; 
+		temp = b + `G(c,d,a) + string[159:128]+ 	32'he7d3fbc8; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//
-		temp = a + `G(b,c,d) + string[319:288]+ 32'he6cde121; 
+		temp = a + `G(b,c,d) + string[319:288]+ 	32'h21e1cde6; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `G(a,b,c) + string[479:448]+ 32'hd60737c3; 
+		temp = d + `G(a,b,c) + string[479:448]+ 	32'hc33707d6; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `G(d,a,b) + string[127:96]+ 32'h870dd5f4; 
+		temp = c + `G(d,a,b) + string[127:96]+ 	32'hf4d50d87; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `G(c,d,a) + string[287:256]+ 32'hed145a45; 
+		temp = b + `G(c,d,a) + string[287:256]+ 	32'h455a14ed; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//
-		temp = a + `G(b,c,d) + string[447:416]+ 32'h05e9e3a9; 
+		temp = a + `G(b,c,d) + string[447:416]+ 	32'ha9e3e905; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `G(a,b,c) + string[95:64]+ 32'hf8a3effc; 
+		temp = d + `G(a,b,c) + string[95:64]+ 		32'hfcefa3f8; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `G(d,a,b) + string[255:224]+ 32'hd9026f67; 
+		temp = c + `G(d,a,b) + string[255:224]+ 	32'h676f02d9; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `G(c,d,a) + string[415:384]+ 32'h8a4c2a8d; 
+		temp = b + `G(c,d,a) + string[415:384]+ 	32'h8d2a4c8a; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//HH	
-		/*
+		
 		temp= a + `H(b,c,d) + string[191:160] +32'h4239faff;
 		temp={temp[27:0],temp[31:28]};
 		a=b+temp;
@@ -324,7 +322,7 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		temp = b + `I(c,d,a) + string[319:288]+ 32'h91d386eb; 
 		temp = {temp[10:0],temp[31:11]};
 		b = c + temp;
-		*/
+		
 		count = count + 1;
 		complete=~complete;
 	end

@@ -50,42 +50,94 @@ module exp12(
 //=======================================================
 //  REG/WIRE declarations
 //=======================================================
-wire [7:0] outdata;
-wire en;
+wire [7:0] ascii;
+wire [9:0] h_addr;
+wire [9:0] v_addr;
+wire [23:0]vga_data;
+wire ready;
+wire wclk,en;
+wire [7:0] outdata,trdata;
+wire Nwren;
 wire [63:0] total_len;
 wire [8:0] strlen;
+wire [31:0] print;
 //=======================================================
 //  Structural coding
 //=======================================================
 
+
+asc2pdot(
+ .clk(CLOCK_50),
+ .vga_clk(VGA_CLK),
+ .ascii(ascii),
+ .v_addr(v_addr),
+ .blank_n(VGA_BLANK_N),
+ .vga_data(vga_data),
+ .en(en),
+ .reset(~KEY[0]),
+ .A(print)
+);
+
+
+clkgen #(25000000) vgaclk(
+	.clkin(CLOCK_50),
+	.rst(~KEY[0]),
+	.clken(1'b1),
+	.clkout(VGA_CLK)
+);
+
 kbd mykbd(
 	.clk(CLOCK_50),
-	.clrn(1'b1),
+	.clrn(KEY[0]),
 	.ps2_clk(PS2_CLK),
 	.ps2_data(PS2_DAT),
-	.outdata(outdata),
+	.outdata(ascii),
 	.en(en)
 );
 
-//字符串直到回车为止
-asc2str a2s(
-	.str_length(strlen),
-	.total_length(total_len),
-	.clk(CLOCK_50),
-	.vga_clk(VGA_CLK),
-	.en(en),
-	.reset(1'b0),
-	.ascii(outdata)
+vga_ctrl myvga_ctrl(
+	.pclk(VGA_CLK),
+	.reset(KEY[0]),
+	.vga_data(vga_data),
+	.h_addr(h_addr),
+	.v_addr(v_addr),
+	.hsync(VGA_HS),
+	.vsync(VGA_VS),
+	.valid(VGA_BLANK_N),
+	.vga_r(VGA_R),
+	.vga_g(VGA_G),
+	.vga_b(VGA_B)
 );
 
-seven sv1(
-	.in_q({1'b0,strlen[3:0]}),
-	.h(HEX0)
+
+seven sv5(
+	.in_q({1'b0,print[23:20]}),
+	.h(HEX5)
+);
+
+seven sv4(
+	.in_q({1'b0,print[19:16]}),
+	.h(HEX4)
+);
+
+seven sv3(
+	.in_q({1'b0,print[15:12]}),
+	.h(HEX3)
 );
 
 seven sv2(
-	.in_q({1'b0,strlen[7:4]}),
+	.in_q({1'b0,print[11:8]}),
+	.h(HEX2)
+);
+
+seven sv1(
+	.in_q({1'b0,print[7:4]}),
 	.h(HEX1)
+);
+
+seven sv0(
+	.in_q({1'b0,print[3:0]}),
+	.h(HEX0)
 );
 
 endmodule

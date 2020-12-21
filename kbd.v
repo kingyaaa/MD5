@@ -79,6 +79,10 @@ always @ (posedge kbdclk) begin
 			en=0;
 		end
 		
+		//else if(Nwren == 1) begin
+		//	en = 1;//写入字符
+		//end
+		
 		else if(ready == 1) begin
 			nextdata_n=1;
 			en=0;
