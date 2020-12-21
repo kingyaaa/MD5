@@ -5,7 +5,7 @@ module asc2str(
 	input reset,
 	input [7:0]ascii,
 	//output reg [7:0]oDATA,
-	output reg [31:0]oDATA,
+	output reg [7:0]oDATA,
 	output reg Nwren,
 	output reg [8:0] str_length,
 	output reg calculate,
@@ -165,16 +165,15 @@ always @ (posedge kbdclk) begin
 	begin
 		calculate <=0;
 	//	string[511:0]={512{1'b0}};
-		A=A+a;
-		B=B+b;
-		C=C+c;
-		D=D+d;
+		A<=A+a;
+		B<=B+b;
+		C<=C+c;
+		D<=D+d;
 		crem<=~crem;
 	end
 	
 	RES[127:0]<={A[31:0],B[31:0],C[31:0],D[31:0]};
 
-	/*
 	if(Last)
 	begin
 		Nwren<=1;
@@ -212,7 +211,6 @@ always @ (posedge kbdclk) begin
 	begin
 		Nwren<=0;
 	end
-	*/
-	oDATA=D;
+	//oDATA<=D;
 end
 endmodule

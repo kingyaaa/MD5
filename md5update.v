@@ -1,4 +1,4 @@
-module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d);
+module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 	
 	
 	input clk;
@@ -24,31 +24,48 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d);
 	output reg [31:0] c;
 	output reg [31:0] d;
 	reg [31:0] temp;
+	
 	`define F(x,y,z) ((x&y) | ((~x)&z))
 	`define G(x,y,z) ((x&z) | (y&(~z)))
 	`define H(x,y,z) (x ^ y ^ z)
 	`define I(x,y,z) (y ^ (x | (~z)))
+	
+	//计数器
+	output reg [7:0]count;
+	
 	initial
 	begin
+		a = 0;
+		b = 0;
+		c = 0;
+		d = 0;
+		count = 0;
 		complete=0;
 	end
-	always @ (posedge en)
+	
+	always @ (posedge clk)
+	if(en == 1)
 	begin	
 	
 		a = A;
 		b = B;
 		c = C;
 		d = D;
+		
+		//FF:1
 		//(b&c) | ((~b)&d)
-		
-		temp = a + `F(b,c,d) + string[31:0]   + 32'h78a46ad7;
-		temp = {temp[24:0],temp[31:25]};
-		a = b + temp;
-		
-		temp = d + `F(a,b,c) + string[63:32]  + 32'h56b7c7e8;
+		//temp = a + `F(b,c,d) + string[31:0]   + 32'hd76aa478;
+		//32'hd76aa478
+		//temp = a + ((b&c) | ((~b)&d)) + string[511:480] + 32'hd76aa478;
+		//temp = {temp[24:0],temp[31:25]};
+		//a = b + temp;
+		//a = b + ((a+((b&c)|((~b)&d))+string[31:0]+32'h7da6_4a87)<< 7  |  (a+((b&c)|((~b)&d))+string[31:0]+32'h7da6_4a87)>>(32- 7) ); 
+		//a = b + ((a+((b&c)|((~b)&d))+string[ 0]+32'hd76a_a478)<< 7  |  (a+((b&c)|((~b)&d))+mes_part[ 0]+32'hd76a_a478)>>(32- 7) );
+		/*
+		temp = d + `F(a,b,c) + string[63:32]  + 32'he8c7b756;//e8c7b756
 		temp = {temp[19:0],temp[31:20]};
 		d = a + temp;
-		
+		/*
 		temp = c + `F(d,a,b) + string[95:64]  + 32'hdb702024;
 		temp = {temp[14:0],temp[31:15]};
 		c = d + temp;
@@ -104,78 +121,78 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d);
 		temp = b + `F(c,d,a) + string[511:480]+ 32'h2108b449; 
 		temp = {temp[9:0],temp[31:10]};
 		b = c + temp;
-		
+		*/
 		//GG
 		
-		temp = a + `F(b,c,d) + string[31:0] +  32'h62251ef6; 
+		temp = a + `G(b,c,d) + string[63:32] +  32'h62251ef6; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `F(a,b,c) + string[63:32]+  32'h40b340c0; 
+		temp = d + `G(a,b,c) + string[223:192]+  32'h40b340c0; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `F(d,a,b) + string[95:64]+  32'h515a5e26; 
+		temp = c + `G(d,a,b) + string[479:448]+  32'h515a5e26; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `F(c,d,a) + string[127:96]+ 32'haac7b6e9; 
+		temp = b + `G(c,d,a) + string[31:0]+ 32'haac7b6e9; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//
-		temp = a + `F(b,c,d) + string[159:128]+ 32'h5d102fd6; 
+		temp = a + `G(b,c,d) + string[192:160]+ 32'h5d102fd6; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `F(a,b,c) + string[191:160]+ 32'h53144402; 
+		temp = d + `G(a,b,c) + string[351:320]+ 32'h53144402; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `F(d,a,b) + string[223:192]+ 32'h81e6a1d8; 
+		temp = c + `G(d,a,b) + string[511:480]+ 32'h81e6a1d8; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `F(c,d,a) + string[255:224]+ 32'hc8fbd3e7; 
+		temp = b + `G(c,d,a) + string[159:128]+ 32'hc8fbd3e7; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//
-		temp = a + `F(b,c,d) + string[287:256]+ 32'he6cde121; 
+		temp = a + `G(b,c,d) + string[319:288]+ 32'he6cde121; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `F(a,b,c) + string[319:288]+ 32'hd60737c3; 
+		temp = d + `G(a,b,c) + string[479:448]+ 32'hd60737c3; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `F(d,a,b) + string[351:320]+ 32'h870dd5f4; 
+		temp = c + `G(d,a,b) + string[127:96]+ 32'h870dd5f4; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `F(c,d,a) + string[383:352]+ 32'hed145a45; 
+		temp = b + `G(c,d,a) + string[287:256]+ 32'hed145a45; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//
-		temp = a + `F(b,c,d) + string[415:384]+ 32'h05e9e3a9; 
+		temp = a + `G(b,c,d) + string[447:416]+ 32'h05e9e3a9; 
 		temp = {temp[26:0],temp[31:27]};
 		a = b + temp;
 		
-		temp = d + `F(a,b,c) + string[447:416]+ 32'hf8a3effc; 
+		temp = d + `G(a,b,c) + string[95:64]+ 32'hf8a3effc; 
 		temp = {temp[22:0],temp[31:23]};
 		d = a + temp;
 		
-		temp = c + `F(d,a,b) + string[479:448]+ 32'hd9026f67; 
+		temp = c + `G(d,a,b) + string[255:224]+ 32'hd9026f67; 
 		temp = {temp[17:0],temp[31:18]};
 		c = d + temp;
 		
-		temp = b + `F(c,d,a) + string[511:480]+ 32'h8a4c2a8d; 
+		temp = b + `G(c,d,a) + string[415:384]+ 32'h8a4c2a8d; 
 		temp = {temp[11:0],temp[31:12]};
 		b = c + temp;
 		
 		//HH	
-
+		/*
 		temp= a + `H(b,c,d) + string[191:160] +32'h4239faff;
 		temp={temp[27:0],temp[31:28]};
 		a=b+temp;
@@ -307,8 +324,9 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d);
 		temp = b + `I(c,d,a) + string[319:288]+ 32'h91d386eb; 
 		temp = {temp[10:0],temp[31:11]};
 		b = c + temp;
+		*/
+		count = count + 1;
 		complete=~complete;
-		end
 	end
 	
 endmodule
