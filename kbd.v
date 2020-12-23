@@ -6,7 +6,7 @@ module kbd(clk,clrn,ps2_clk,ps2_data,outdata,en);
 	
 	reg [7:0] mycount;
 	reg [7:0] kdata;		//传入查找表寻找ascii码的有效键码
-	reg [6:0]count_clk;
+	reg [10:0]count_clk;
 	reg shift,up,caps,kbdclk,nextdata_n,bf;	//shift键标志位、大小写标志位、键码处理模块时钟、上一个键码为断码的标志位bf
 	
 	wire overflow,ready;
@@ -59,7 +59,7 @@ k2as myk2as(
 assign outdata = ((asciis != asciih)&&(asciis != asciil) && shift == 1)? asciis : ((up == 1)? asciih : asciil);
 //时钟分频
 always @ (posedge clk)begin
-	if(count_clk==100)begin
+	if(count_clk==1000)begin
 		count_clk <= 0;
 		kbdclk <= ~kbdclk;
 	end

@@ -1,4 +1,4 @@
-module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
+module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count,temp);
 	
 	
 	input clk;
@@ -23,7 +23,7 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 	output reg [31:0] b;
 	output reg [31:0] c;
 	output reg [31:0] d;
-	reg [31:0] temp;
+	output reg [35:0] temp;
 	
 	`define F(x,y,z) ((x&y) | ((~x)&z))
 	`define G(x,y,z) ((x&z) | (y&(~z)))
@@ -41,6 +41,7 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		d = 0;
 		count = 0;
 		complete=0;
+		temp = 0;
 	end
 	always @ (posedge en)
 	begin	
@@ -51,18 +52,27 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		d = D;
 		
 		//FF:1
-		//(b&c) | ((~b)&d)
+		//temp = string[31:0];
+		//temp = a + ((b&c) | ((~b)&d)) + 32'hd76aa478;
 		//temp = a + `F(b,c,d) + string[31:0]   + 32'hd76aa478;
 		//32'hd76aa478
-		//temp = a + ((b&c) | ((~b)&d)) + string[511:480] + 32'hd76aa478;
-		//temp = {temp[24:0],temp[31:25]};
-		//a = b + temp;
-		//a = b + ((a+((b&c)|((~b)&d))+string[31:0]+32'h7da6_4a87)<< 7  |  (a+((b&c)|((~b)&d))+string[31:0]+32'h7da6_4a87)>>(32- 7) ); 
-		//a = b + ((a+((b&c)|((~b)&d))+string[ 0]+32'hd76a_a478)<< 7  |  (a+((b&c)|((~b)&d))+mes_part[ 0]+32'hd76a_a478)>>(32- 7) );
 		
+		//temp = a + ((b&c) | ((~b)&d)) + string[31:0] + 32'hd76aa478;
+		//temp = {temp[24:0],temp[31:25]};
+		
+		//a = string[31:0];
+		
+		
+		//a = b + ((a+((b&c)|((~b)&d))+string[31:0])<< 7  |  (a+((b&c)|((~b)&d))+string[31:0])>>(32- 7) );
+		
+		//a = b + ((a+((b&c)|((~b)&d))+string[31:0]+32'hd76a_a478)<< 7  |  (a+((b&c)|((~b)&d))+string[31:0]+32'hd76a_a478)>>(32- 7) ); 
+		
+		
+		/*
 		temp = d + `F(a,b,c) + string[63:32]  + 32'he8c7b756;//e8c7b756
 		temp = {temp[19:0],temp[31:20]};
 		d = a + temp;
+		
 		
 		temp = c + `F(d,a,b) + string[95:64]  + 32'hdb702024;
 		temp = {temp[14:0],temp[31:15]};
@@ -322,6 +332,7 @@ module md5update(clk,string,input_len,en,complete,A,B,C,D,a,b,c,d,count);
 		temp = b + `I(c,d,a) + string[319:288]+ 32'h91d386eb; 
 		temp = {temp[10:0],temp[31:11]};
 		b = c + temp;
+		*/
 		
 		count = count + 1;
 		complete=~complete;

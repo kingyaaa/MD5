@@ -60,7 +60,10 @@ wire [7:0] outdata,trdata;
 wire Nwren;
 wire [63:0] total_len;
 wire [8:0] strlen;
+
 wire [31:0] print;
+wire [7:0] number;
+wire [63:0] temp;
 //=======================================================
 //  Structural coding
 //=======================================================
@@ -75,7 +78,8 @@ asc2pdot(
  .vga_data(vga_data),
  .en(en),
  .reset(~KEY[0]),
- .A(print)
+ //.count_wren(number),
+ .total_length(temp)
 );
 
 
@@ -111,33 +115,35 @@ vga_ctrl myvga_ctrl(
 
 
 seven sv5(
-	.in_q({1'b0,print[23:20]}),
+	.in_q({1'b0,temp[23:20]}),
 	.h(HEX5)
 );
 
 seven sv4(
-	.in_q({1'b0,print[19:16]}),
+	.in_q({1'b0,temp[19:16]}),
 	.h(HEX4)
 );
 
 seven sv3(
-	.in_q({1'b0,print[15:12]}),
+	.in_q({1'b0,temp[15:12]}),
 	.h(HEX3)
 );
 
 seven sv2(
-	.in_q({1'b0,print[11:8]}),
+	.in_q({1'b0,temp[11:8]}),
 	.h(HEX2)
 );
 
 seven sv1(
-	.in_q({1'b0,print[7:4]}),
+	.in_q({1'b0,temp[7:4]}),
 	.h(HEX1)
 );
 
 seven sv0(
-	.in_q({1'b0,print[3:0]}),
+	.in_q({1'b0,temp[3:0]}),
 	.h(HEX0)
 );
+
+assign LEDR[7:0] = temp[31:24]; 
 
 endmodule
